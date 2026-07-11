@@ -1,0 +1,136 @@
+:root {
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* Dark theme (default, and explicit override via data-theme) — МатФак brand: teal-black + mint-teal accent */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0a1815;
+  --bg-elevated: #12241f;
+  --bg-elevated-2: #1a332c;
+  --border: #24443a;
+  --text: #eaf5f0;
+  --text-muted: #93ab9e;
+  --accent: #22c58d;
+  --accent-strong: #1aa379;
+  --accent-soft: rgba(34, 197, 141, 0.16);
+  --on-accent: #062017;
+  --success: #7fd8a3;
+  --warning: #f2c66d;
+  --danger: #f28b82;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Light theme — explicit choice */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f3f8f6;
+  --bg-elevated: #ffffff;
+  --bg-elevated-2: #eaf3ef;
+  --border: #d7e6df;
+  --text: #12211c;
+  --text-muted: #5c7669;
+  --accent: #0c8a63;
+  --accent-strong: #0a6e4e;
+  --accent-soft: rgba(12, 138, 99, 0.1);
+  --on-accent: #ffffff;
+  --success: #2f9e5e;
+  --warning: #a4700a;
+  --danger: #cf4343;
+  --shadow: 0 8px 24px rgba(20, 30, 60, 0.12);
+}
+
+/* Light theme — system preference fallback, before the user has chosen explicitly */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+    --bg: #f3f8f6;
+    --bg-elevated: #ffffff;
+    --bg-elevated-2: #eaf3ef;
+    --border: #d7e6df;
+    --text: #12211c;
+    --text-muted: #5c7669;
+    --accent: #0c8a63;
+    --accent-strong: #0a6e4e;
+    --accent-soft: rgba(12, 138, 99, 0.1);
+    --on-accent: #ffffff;
+    --success: #2f9e5e;
+    --warning: #a4700a;
+    --danger: #cf4343;
+    --shadow: 0 8px 24px rgba(20, 30, 60, 0.12);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(var(--safe-top) + 16px);
+}
+
+.app-main {
+  flex: 1;
+  padding: 0 16px calc(96px + var(--safe-bottom));
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+.app-header {
+  padding: 0 20px 12px;
+}
+
+.app-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.app-header p {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
