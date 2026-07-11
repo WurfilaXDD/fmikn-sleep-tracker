@@ -1,12 +1,11 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import * as db from '../db/db'
-import type { ExportPayload, NewSleepEntry, SleepEntry } from '../types'
+import type { ExportPayload, SleepEntry } from '../types'
 
 interface EntriesContextValue {
   entries: SleepEntry[]
   loading: boolean
-  saveEntry: (input: NewSleepEntry) => Promise<SleepEntry>
-  removeEntry: (date: string) => Promise<void>
+  saveEntry: (entry: SleepEntry) => Promise<SleepEntry>
   clearAll: () => Promise<void>
   importEntries: (payload: ExportPayload) => Promise<number>
   refresh: () => Promise<void>
@@ -24,22 +23,16 @@ export function EntriesProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    refresh().finally(() => setLoading(false))
+    db.seedIfEmpty()
+      .then(refresh)
+      .finally(() => setLoading(false))
   }, [refresh])
 
   const saveEntry = useCallback(
-    async (input: NewSleepEntry) => {
-      const saved = await db.upsertEntry(input)
+    async (entry: SleepEntry) => {
+      const saved = await db.upsertEntry(entry)
       await refresh()
       return saved
-    },
-    [refresh],
-  )
-
-  const removeEntry = useCallback(
-    async (date: string) => {
-      await db.deleteEntry(date)
-      await refresh()
     },
     [refresh],
   )
@@ -59,7 +52,7 @@ export function EntriesProvider({ children }: { children: ReactNode }) {
   )
 
   return (
-    <EntriesContext.Provider value={{ entries, loading, saveEntry, removeEntry, clearAll, importEntries, refresh }}>
+    <EntriesContext.Provider value={{ entries, loading, saveEntry, clearAll, importEntries, refresh }}>
       {children}
     </EntriesContext.Provider>
   )

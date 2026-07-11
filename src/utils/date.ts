@@ -1,13 +1,4 @@
-const WEEKDAY_LABELS = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб']
-const WEEKDAY_LABELS_FULL = [
-  'воскресенье',
-  'понедельник',
-  'вторник',
-  'среда',
-  'четверг',
-  'пятница',
-  'суббота',
-]
+const WEEKDAY_LABELS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
 const MONTH_LABELS = [
   'января',
   'февраля',
@@ -44,23 +35,14 @@ export function weekdayShort(date: string): string {
   return WEEKDAY_LABELS[parseKey(date).getDay()]
 }
 
-export function weekdayFull(date: string): string {
-  return WEEKDAY_LABELS_FULL[parseKey(date).getDay()]
+/** "СБ, 11 ИЮЛЯ" — used for the small date eyebrow above the survey/analysis heading. */
+export function dateLabelUpper(date: string): string {
+  return `${weekdayShort(date)}, ${formatDateHuman(date)}`.toUpperCase()
 }
 
-const DATIVE_PLURAL: Record<string, string> = {
-  'воскресенье': 'воскресеньям',
-  'понедельник': 'понедельникам',
-  'вторник': 'вторникам',
-  'среда': 'средам',
-  'четверг': 'четвергам',
-  'пятница': 'пятницам',
-  'суббота': 'субботам',
-}
-
-/** "понедельник" -> "по понедельникам" style phrasing for weekday labels. */
-export function weekdayDativePlural(weekdayNominative: string): string {
-  return DATIVE_PLURAL[weekdayNominative] ?? weekdayNominative
+/** "Сб, 11 июля" — used for trends journal entries. */
+export function dateLabelFull(date: string): string {
+  return `${weekdayShort(date)}, ${formatDateHuman(date)}`
 }
 
 export function addDays(date: string, delta: number): string {
@@ -73,12 +55,10 @@ export function isToday(date: string): boolean {
   return date === todayKey()
 }
 
-/** Small deterministic hash for a string, used to pick phrasing variants without flicker on re-render. */
-export function hashString(input: string): number {
-  let hash = 0
-  for (let i = 0; i < input.length; i++) {
-    hash = (hash << 5) - hash + input.charCodeAt(i)
-    hash |= 0
-  }
-  return Math.abs(hash)
+export function greeting(now = new Date()): string {
+  const hh = now.getHours()
+  if (hh < 5) return 'Доброй ночи'
+  if (hh < 12) return 'Доброе утро'
+  if (hh < 18) return 'Добрый день'
+  return 'Добрый вечер'
 }

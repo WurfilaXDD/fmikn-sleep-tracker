@@ -15,6 +15,14 @@ function detectIOS(): boolean {
   return window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1
 }
 
+function detectSafari(): boolean {
+  return /^((?!chrome|android|crios|fxios|edg|opr).)*safari/i.test(window.navigator.userAgent)
+}
+
+function detectMac(): boolean {
+  return /macintosh/i.test(window.navigator.userAgent)
+}
+
 function detectStandalone(): boolean {
   const nav = window.navigator as Navigator & { standalone?: boolean }
   return window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true
@@ -27,6 +35,11 @@ function isSnoozed(): boolean {
   return elapsedDays < SNOOZE_DAYS
 }
 
+export interface InstallHintStep {
+  n: number
+  text: string
+}
+
 interface InstallPromptContextValue {
   isIOS: boolean
   isStandalone: boolean
@@ -34,6 +47,12 @@ interface InstallPromptContextValue {
   shouldShowBanner: boolean
   promptInstall: () => Promise<void>
   dismiss: () => void
+  showSheet: boolean
+  openSheet: () => void
+  closeSheet: () => void
+  installOrOpenSheet: () => void
+  hintLead: string
+  hintSteps: InstallHintStep[]
 }
 
 const InstallPromptContext = createContext<InstallPromptContextValue | null>(null)
@@ -43,6 +62,9 @@ export function InstallPromptProvider({ children }: { children: ReactNode }) {
   const [isStandalone, setIsStandalone] = useState(detectStandalone)
   const [dismissed, setDismissed] = useState(isSnoozed)
   const [isIOS] = useState(detectIOS)
+  const [isSafari] = useState(detectSafari)
+  const [isMac] = useState(detectMac)
+  const [showSheet, setShowSheet] = useState(false)
 
   useEffect(() => {
     function handleBeforeInstallPrompt(event: Event) {
@@ -73,12 +95,50 @@ export function InstallPromptProvider({ children }: { children: ReactNode }) {
     setDismissed(true)
   }, [])
 
+  const openSheet = useCallback(() => setShowSheet(true), [])
+  const closeSheet = useCallback(() => setShowSheet(false), [])
+
   const canInstallAndroid = deferredEvent !== null
   const shouldShowBanner = !isStandalone && (isIOS || canInstallAndroid) && !dismissed
 
+  const installOrOpenSheet = useCallback(() => {
+    if (canInstallAndroid) promptInstall()
+    else openSheet()
+  }, [canInstallAndroid, promptInstall, openSheet])
+
+  let hintLead: string
+  let hintSteps: string[]
+  if (isIOS) {
+    hintLead = 'Safari не устанавливает приложения сам — добавьте «Трекер сна» вручную:'
+    hintSteps = [
+      'Нажмите значок «Поделиться» в нижней панели Safari',
+      'Пролистайте вниз и выберите «На экран „Домой“»',
+      'Нажмите «Добавить» в правом верхнем углу',
+    ]
+  } else if (isSafari && isMac) {
+    hintLead = 'В Safari на Mac приложение добавляется вручную:'
+    hintSteps = ['Нажмите значок «Поделиться» в панели Safari', 'Выберите «Добавить в Dock»', '«Трекер сна» появится в Dock как приложение']
+  } else {
+    hintLead = 'Установите «Трекер сна» через меню браузера:'
+    hintSteps = ['Откройте меню браузера в правом верхнем углу', 'Выберите «Установить приложение»', 'Подтвердите установку']
+  }
+
   return (
     <InstallPromptContext.Provider
-      value={{ isIOS, isStandalone, canInstallAndroid, shouldShowBanner, promptInstall, dismiss }}
+      value={{
+        isIOS,
+        isStandalone,
+        canInstallAndroid,
+        shouldShowBanner,
+        promptInstall,
+        dismiss,
+        showSheet,
+        openSheet,
+        closeSheet,
+        installOrOpenSheet,
+        hintLead,
+        hintSteps: hintSteps.map((text, i) => ({ n: i + 1, text })),
+      }}
     >
       {children}
     </InstallPromptContext.Provider>

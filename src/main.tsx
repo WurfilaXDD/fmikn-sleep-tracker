@@ -6,14 +6,14 @@ import './styles/components.css'
 import { App } from './App'
 import { EntriesProvider } from './hooks/useEntries'
 import { ReminderProvider } from './hooks/useReminderSettings'
-import { ThemeProvider } from './hooks/useTheme'
 import { InstallPromptProvider } from './hooks/useInstallPrompt'
+import { ToastProvider } from './hooks/useToast'
 
 registerSW({ immediate: true })
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider>
+    <ToastProvider>
       <InstallPromptProvider>
         <EntriesProvider>
           <ReminderProvider>
@@ -21,6 +21,6 @@ createRoot(document.getElementById('root')!).render(
           </ReminderProvider>
         </EntriesProvider>
       </InstallPromptProvider>
-    </ThemeProvider>
+    </ToastProvider>
   </StrictMode>,
 )

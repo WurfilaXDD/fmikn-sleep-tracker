@@ -1,45 +1,50 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { AmbientBackground } from './components/AmbientBackground'
 import { TabBar, type Tab } from './components/TabBar'
-import { TodayView } from './components/TodayView/TodayView'
-import { HistoryView } from './components/HistoryView/HistoryView'
-import { InsightsView } from './components/InsightsView/InsightsView'
-import { SettingsView } from './components/SettingsView/SettingsView'
-import { WelcomeScreen } from './components/Welcome/WelcomeScreen'
-import { InstallBanner } from './components/InstallBanner'
+import { TodayTab } from './components/TodayTab/TodayTab'
+import { TrendsTab } from './components/TrendsTab/TrendsTab'
+import { MoreTab } from './components/MoreTab/MoreTab'
+import { OnboardingFlow } from './components/Onboarding/OnboardingFlow'
+import { InstallSheet } from './components/InstallSheet'
+import { Toast } from './components/Toast'
+import { useEntries } from './hooks/useEntries'
 import { useReminderSettings } from './hooks/useReminderSettings'
 import { useReminderWatcher } from './notifications/reminders'
-import { useTodayEntry } from './hooks/useTodayEntry'
+import { todayKey } from './utils/date'
 
-const WELCOME_SEEN_KEY = 'sleep-tracker-welcome-seen'
+const ONBOARDING_SEEN_KEY = 'sleep-tracker-onboarding-seen'
 
 export function App() {
   const [tab, setTab] = useState<Tab>('today')
-  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem(WELCOME_SEEN_KEY))
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem(ONBOARDING_SEEN_KEY))
+  const { entries } = useEntries()
   const { settings } = useReminderSettings()
-  const todayEntry = useTodayEntry()
-  useReminderWatcher(settings, todayEntry !== null)
 
-  function handleWelcomeClose() {
-    localStorage.setItem(WELCOME_SEEN_KEY, '1')
-    setShowWelcome(false)
+  const hasTodayEntry = useMemo(() => entries.some((e) => e.date === todayKey()), [entries])
+  useReminderWatcher(settings, hasTodayEntry)
+
+  function finishOnboarding() {
+    localStorage.setItem(ONBOARDING_SEEN_KEY, '1')
+    setShowOnboarding(false)
   }
 
   return (
     <div className="app-shell">
-      <main className="app-main">
-        {showWelcome ? (
-          <WelcomeScreen isFirstRun onClose={handleWelcomeClose} />
-        ) : (
-          <>
-            <InstallBanner />
-            {tab === 'today' && <TodayView />}
-            {tab === 'history' && <HistoryView />}
-            {tab === 'insights' && <InsightsView />}
-            {tab === 'settings' && <SettingsView />}
-          </>
-        )}
-      </main>
-      {!showWelcome && <TabBar active={tab} onChange={setTab} />}
+      <AmbientBackground />
+      {showOnboarding ? (
+        <OnboardingFlow onFinish={finishOnboarding} />
+      ) : (
+        <>
+          <main className="app-main">
+            {tab === 'today' && <TodayTab />}
+            {tab === 'trends' && <TrendsTab />}
+            {tab === 'more' && <MoreTab />}
+          </main>
+          <TabBar active={tab} onChange={setTab} />
+        </>
+      )}
+      <InstallSheet />
+      <Toast />
     </div>
   )
 }

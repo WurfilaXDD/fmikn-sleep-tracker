@@ -1,30 +1,24 @@
-import { ChartIcon, GearIcon, HistoryIcon, MoonIcon } from './icons'
+import { MoreTabIcon, TodayTabIcon, TrendsTabIcon } from './icons'
 
-export type Tab = 'today' | 'history' | 'insights' | 'settings'
+export type Tab = 'today' | 'trends' | 'more'
 
-const TABS: { id: Tab; label: string; icon: () => React.JSX.Element }[] = [
-  { id: 'today', label: 'Сегодня', icon: MoonIcon },
-  { id: 'history', label: 'История', icon: HistoryIcon },
-  { id: 'insights', label: 'Инсайты', icon: ChartIcon },
-  { id: 'settings', label: 'Настройки', icon: GearIcon },
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'today', label: 'Сон' },
+  { id: 'trends', label: 'Тренды' },
+  { id: 'more', label: 'Ещё' },
 ]
 
 export function TabBar({ active, onChange }: { active: Tab; onChange: (tab: Tab) => void }) {
   return (
     <nav className="tab-bar">
-      <div className="tab-bar-inner">
-        {TABS.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            className={`tab-button${active === id ? ' active' : ''}`}
-            onClick={() => onChange(id)}
-            aria-current={active === id}
-          >
-            <Icon />
-            <span>{label}</span>
-          </button>
-        ))}
-      </div>
+      {TABS.map(({ id, label }) => (
+        <button key={id} className={`tab-button${active === id ? ' active' : ''}`} onClick={() => onChange(id)}>
+          {id === 'today' && <TodayTabIcon active={active === 'today'} />}
+          {id === 'trends' && <TrendsTabIcon />}
+          {id === 'more' && <MoreTabIcon />}
+          <span>{label}</span>
+        </button>
+      ))}
     </nav>
   )
 }

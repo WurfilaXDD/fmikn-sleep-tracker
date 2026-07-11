@@ -77,6 +77,34 @@ export function ShareIcon() {
   )
 }
 
+export function TodayTabIcon({ active }: { active: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" fill={active ? 'currentColor' : 'none'} />
+    </svg>
+  )
+}
+
+export function TrendsTabIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="4" y="12" width="4" height="7" rx="1.5" fill="currentColor" />
+      <rect x="10" y="7" width="4" height="12" rx="1.5" fill="currentColor" />
+      <rect x="16" y="10" width="4" height="9" rx="1.5" fill="currentColor" />
+    </svg>
+  )
+}
+
+export function MoreTabIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="6" cy="12" r="2" fill="currentColor" />
+      <circle cx="12" cy="12" r="2" fill="currentColor" />
+      <circle cx="18" cy="12" r="2" fill="currentColor" />
+    </svg>
+  )
+}
+
 export function GearIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none">

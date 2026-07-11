@@ -10,7 +10,8 @@ clientsClaim()
 precacheAndRoute(self.__WB_MANIFEST)
 
 const REMINDER_KEY = 'sleep-tracker-reminder'
-const LAST_NOTIFIED_KEY = 'sleep-tracker-last-notified'
+const LAST_NOTIFIED_KEY = 'sleep-tracker-last-notified-bed'
+const BED_TIME = '23:00'
 
 /**
  * Best-effort background reminder. Periodic Background Sync only fires on
@@ -18,7 +19,9 @@ const LAST_NOTIFIED_KEY = 'sleep-tracker-last-notified'
  * browser's engagement heuristics allow it — there is no real background
  * delivery on iOS Safari without a push server, which this app intentionally
  * doesn't have (no backend). The reliable path stays the foreground check in
- * src/notifications/reminders.ts, run whenever the app is open.
+ * src/notifications/reminders.ts, run whenever the app is open. Only the
+ * "bed" reminder is handled here (it doesn't depend on today's entry); the
+ * "morning survey" reminder relies entirely on the foreground check.
  */
 self.addEventListener('periodicsync', (event) => {
   const syncEvent = event as unknown as { tag: string; waitUntil: (p: Promise<unknown>) => void }
@@ -37,20 +40,20 @@ async function checkReminder() {
   ])
   if (!reminderRes) return
 
-  const reminder = (await reminderRes.json()) as { enabled: boolean; time: string }
-  if (!reminder.enabled) return
+  const reminder = (await reminderRes.json()) as { bed: boolean; morning: boolean }
+  if (!reminder.bed) return
 
   const today = new Date().toISOString().slice(0, 10)
   const lastNotified = lastNotifiedRes ? await lastNotifiedRes.text() : ''
   if (lastNotified === today) return
 
   const now = new Date()
-  const [h, m] = reminder.time.split(':').map(Number)
+  const [h, m] = BED_TIME.split(':').map(Number)
   const due = now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)
   if (!due) return
 
-  await self.registration.showNotification('Трекер сна', {
-    body: 'Не забудьте заполнить сегодняшнюю анкету о сне.',
+  await self.registration.showNotification('Пора спать', {
+    body: 'Уже поздно — самое время подготовиться ко сну.',
     icon: 'icons/icon-192.png',
     tag: 'daily-reminder',
   })
