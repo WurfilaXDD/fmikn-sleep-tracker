@@ -23,9 +23,7 @@ export function EntriesProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    db.seedIfEmpty()
-      .then(refresh)
-      .finally(() => setLoading(false))
+    refresh().finally(() => setLoading(false))
   }, [refresh])
 
   const saveEntry = useCallback(

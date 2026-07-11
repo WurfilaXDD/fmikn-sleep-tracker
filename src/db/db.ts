@@ -1,7 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb'
 import type { ExportPayload, ReminderSettings, SleepEntry } from '../types'
-import { computeAnalysis } from '../analysis/score'
-import { addDays, todayKey } from '../utils/date'
 
 interface SleepDB extends DBSchema {
   entries: {
@@ -61,30 +59,6 @@ export async function getAllEntries(): Promise<SleepEntry[]> {
 export async function clearAllEntries(): Promise<void> {
   const db = await getDB()
   await db.clear('entries')
-}
-
-const SEED_TEMPLATE: { back: number; hours: number; quality: 1 | 2 | 3 | 4 | 5; dream: SleepEntry['dream']; wellbeing: 1 | 2 | 3 | 4 | 5 }[] = [
-  { back: 6, hours: 5.5, quality: 2, dream: 'anxious', wellbeing: 2 },
-  { back: 5, hours: 7, quality: 3, dream: 'everyday', wellbeing: 3 },
-  { back: 4, hours: 8, quality: 4, dream: 'pleasant', wellbeing: 4 },
-  { back: 3, hours: 6.5, quality: 3, dream: 'vivid', wellbeing: 3 },
-  { back: 2, hours: 8.5, quality: 5, dream: 'lucid', wellbeing: 5 },
-  { back: 1, hours: 7, quality: 4, dream: 'none', wellbeing: 4 },
-]
-
-/** Populates a few demo nights so the Trends tab isn't empty on first launch. */
-export async function seedIfEmpty(): Promise<void> {
-  const db = await getDB()
-  const count = await db.count('entries')
-  if (count > 0) return
-  const today = todayKey()
-  const tx = db.transaction('entries', 'readwrite')
-  for (const t of SEED_TEMPLATE) {
-    const date = addDays(today, -t.back)
-    const { score } = computeAnalysis(t)
-    await tx.store.put({ date, hours: t.hours, quality: t.quality, dream: t.dream, wellbeing: t.wellbeing, score })
-  }
-  await tx.done
 }
 
 export async function exportData(): Promise<ExportPayload> {
