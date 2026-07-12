@@ -133,14 +133,6 @@ export function MoreTab() {
       <div style={{ marginTop: 20, animation: 'fadeUp .5s .1s both' }}>
         <div className="section-label">Данные</div>
         <div className="list-group">
-          <div className="list-row">
-            <div style={{ flex: 1 }}>
-              <span className="data-row-title">Только на устройстве</span>
-              <span className="data-row-sub">Записи и анализ хранятся локально в этом браузере</span>
-            </div>
-            <div className="badge-on">ON</div>
-          </div>
-          <div className="list-divider" />
           <button
             className="list-row"
             style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}

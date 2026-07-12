@@ -540,16 +540,6 @@
   display: block;
 }
 
-.badge-on {
-  flex: none;
-  padding: 5px 10px;
-  border-radius: 20px;
-  background: rgba(111, 216, 198, 0.16);
-  color: var(--teal);
-  font-size: 12px;
-  font-weight: 700;
-}
-
 .data-row-title {
   display: block;
   font-size: 15px;
